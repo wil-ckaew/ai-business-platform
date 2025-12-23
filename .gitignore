@@ -1,0 +1,30 @@
+# ===== Rust =====
+/target
+**/target
+
+# ===== Node / Next =====
+node_modules/
+**/node_modules
+.next/
+dist/
+build/
+
+# ===== Python =====
+/venv
+**/venv
+__pycache__/
+*.pyc
+
+# ===== Binários =====
+*.exe
+*.out
+*.bin
+
+# ===== Env =====
+.env
+.env.*
+
+# ===== OS / IDE =====
+.DS_Store
+.idea/
+.vscode/
