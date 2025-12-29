@@ -11,6 +11,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'AI Insights', href: '/dashboard/ai-insights', icon: BarChart3 },
+  { name: 'AI Predictions', href: '/ai-predictions', icon: BarChart3 },
   { name: 'Analytics', href: '/analytics', icon: TrendingUp },
   { name: 'Sales', href: '/sales', icon: DollarSign },
   { name: 'Customers', href: '/customers', icon: Users },
