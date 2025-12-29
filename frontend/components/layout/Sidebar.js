@@ -1,189 +1,156 @@
-import {
-  LayoutDashboard,
-  TrendingUp,
-  ShoppingCart,
-  Users,
-  BarChart3,
-  Settings,
-  HelpCircle,
-  LogOut,
-  FileText,
-  Bell,
-  Shield,
-  X
-} from 'lucide-react'
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { useAuth } from '../../contexts/AuthContext'
+import {
+  Home, TrendingUp, Users, Package,
+  DollarSign, Settings, Shield, Bell,
+  FileText, BarChart3, Headphones,
+  Lock, Database, Cpu, Zap,
+  UserCheck, Globe
+} from 'lucide-react'
 
 const navigation = [
-  { name: 'Dashboard', icon: LayoutDashboard, href: '/', current: true },
-  { name: 'Sales', icon: ShoppingCart, href: '/sales', current: false },
-  { name: 'Analytics', icon: BarChart3, href: '/analytics', current: false },
-  { name: 'Customers', icon: Users, href: '/customers', current: false },
-  { name: 'Predictions', icon: TrendingUp, href: '/predictions', current: false },
-  { name: 'Reports', icon: FileText, href: '/reports', current: false },
-  { name: 'Notifications', icon: Bell, href: '/notifications', current: false },
-  { name: 'Security', icon: Shield, href: '/security', current: false },
+  { name: 'Dashboard', href: '/', icon: Home },
+  { name: 'AI Insights', href: '/dashboard/ai-insights', icon: BarChart3 },
+  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+  { name: 'Sales', href: '/sales', icon: DollarSign },
+  { name: 'Customers', href: '/customers', icon: Users },
+  { name: 'Predictions', href: '/predictions', icon: Globe },
+  { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Security', href: '/security', icon: Shield },
+  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Support', href: '/support', icon: Headphones },
+  { name: 'Teste API Rust', href: '/api-test', icon: Headphones },
 ]
 
-const secondaryNavigation = [
-  { name: 'Settings', icon: Settings, href: '/settings' },
-  { name: 'Help & Support', icon: HelpCircle, href: '/support' },
+const adminNavigation = [
+  { name: 'User Management', href: '/admin/users', icon: UserCheck },
+  { name: 'System Logs', href: '/admin/logs', icon: Database },
+  { name: 'Performance', href: '/admin/performance', icon: Cpu },
+  { name: 'Permissions', href: '/admin/permissions', icon: Lock },
 ]
 
-export default function Sidebar({ isOpen, onClose }) {
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
+
+export default function Sidebar() {
   const router = useRouter()
-  const [activeItem, setActiveItem] = useState('Dashboard')
-  const [isMobile, setIsMobile] = useState(false)
+  const { user, isAdmin } = useAuth()
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  useEffect(() => {
-    if (isMobile && isOpen) {
-      const handleRouteChange = () => {
-        onClose()
-      }
-      
-      router.events.on('routeChangeComplete', handleRouteChange)
-      return () => {
-        router.events.off('routeChangeComplete', handleRouteChange)
-      }
-    }
-  }, [isMobile, isOpen, onClose, router.events])
-
-  const handleNavigation = (name, href) => {
-    setActiveItem(name)
+  const handleNavigation = (href) => {
     router.push(href)
-    if (isMobile) onClose()
   }
 
+  const isActive = (href) => 
+    router.pathname === href || router.pathname.startsWith(href + '/')
+
   return (
-    <>
-      {/* Mobile overlay */}
-      {isOpen && isMobile && (
-        <div className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 transition-opacity lg:hidden" onClick={onClose} />
-      )}
-
-      <div className={`
-        flex flex-col h-screen w-64 bg-white border-r border-gray-200 
-        fixed lg:static inset-y-0 left-0 z-50
-        transform transition-transform duration-300 ease-in-out
-        ${isOpen || !isMobile ? 'translate-x-0' : '-translate-x-full'} 
-        lg:translate-x-0
-      `}>
-        {/* Header da Sidebar (mobile) */}
-        <div className="lg:hidden flex items-center justify-between px-6 h-16 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-white" />
+    <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+      <div className="flex flex-col flex-grow pt-5 bg-gray-800 overflow-y-auto">
+        <div className="flex items-center flex-shrink-0 px-4">
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">AI Business</h1>
-              <p className="text-xs text-gray-500">Intelligence Platform</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {/* Logo (desktop) */}
-        <div className="hidden lg:flex items-center justify-center h-16 px-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">AI Business</h1>
-              <p className="text-xs text-gray-500">Intelligence Platform</p>
-            </div>
+            <h1 className="ml-3 text-xl font-bold text-white">AI Platform</h1>
           </div>
         </div>
-
-        {/* Scrollable Navigation */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          {/* Navigation */}
-          <nav className="px-4 py-6 space-y-1 flex-1">
-            {navigation.map((item) => {
-              const Icon = item.icon
-              const isActive = activeItem === item.name || router.pathname === item.href
-              
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleNavigation(item.name, item.href)}
-                  className={`
-                    w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors
-                    ${isActive 
-                      ? 'bg-primary-50 text-primary-700 border border-primary-100' 
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }
-                  `}
-                >
-                  <Icon className={`h-5 w-5 mr-3 ${isActive ? 'text-primary-600' : 'text-gray-400'}`} />
-                  {item.name}
-                  {item.name === 'Notifications' && (
-                    <span className="ml-auto bg-danger-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+        
+        {/* User Info */}
+        <div className="px-4 mt-6 mb-4">
+          <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
+              </div>
+              <div className="ml-3">
+                <p className="font-medium text-white text-sm">{user?.name || 'Admin User'}</p>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  user?.role === 'admin' 
+                    ? 'bg-purple-900 text-purple-200' 
+                    : 'bg-green-900 text-green-200'
+                }`}>
+                  {user?.role === 'admin' ? (
+                    <>
+                      <Shield className="h-2.5 w-2.5 mr-1" />
+                      Admin
+                    </>
+                  ) : (
+                    <>
+                      <UserCheck className="h-2.5 w-2.5 mr-1" />
+                      User
+                    </>
                   )}
-                </button>
-              )
-            })}
-          </nav>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* Secondary Navigation */}
-          <div className="px-4 py-4 border-t border-gray-200">
-            {secondaryNavigation.map((item) => {
-              const Icon = item.icon
-              const isActive = activeItem === item.name
-              
+        <div className="mt-5 flex-1 flex flex-col">
+          <nav className="flex-1 px-2 pb-4 space-y-1">
+            {navigation.map((item) => {
+              const current = isActive(item.href)
               return (
                 <button
                   key={item.name}
-                  onClick={() => handleNavigation(item.name, item.href)}
-                  className={`
-                    w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors mb-2
-                    ${isActive 
-                      ? 'bg-gray-100 text-gray-900' 
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }
-                  `}
+                  onClick={() => handleNavigation(item.href)}
+                  className={classNames(
+                    current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                    'group flex items-center px-2 py-2.5 text-sm font-medium rounded-md w-full text-left'
+                  )}
                 >
-                  <Icon className="h-5 w-5 mr-3 text-gray-400" />
+                  <item.icon className="mr-3 h-5 w-5" />
                   {item.name}
                 </button>
               )
             })}
-            
-            <button className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
-              <LogOut className="h-5 w-5 mr-3 text-gray-400" />
-              Sign out
-            </button>
-          </div>
 
-          {/* Upgrade Banner */}
-          <div className="px-4 py-4 border-t border-gray-200">
-            <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-white">Upgrade to Pro</h3>
-              <p className="text-xs text-primary-100 mt-1">Get advanced features and insights</p>
-              <button className="mt-3 w-full bg-white text-primary-600 text-sm font-medium py-2 rounded-lg hover:bg-gray-100 transition-colors">
-                Upgrade Now
-              </button>
+            {/* Admin Section */}
+            {isAdmin && (
+              <>
+                <div className="pt-6 pb-2">
+                  <div className="px-2">
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      Administration
+                    </div>
+                  </div>
+                </div>
+
+                {adminNavigation.map((item) => {
+                  const current = isActive(item.href)
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => handleNavigation(item.href)}
+                      className={classNames(
+                        current ? 'bg-purple-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                        'group flex items-center px-2 py-2.5 text-sm font-medium rounded-md w-full text-left'
+                      )}
+                    >
+                      <item.icon className="mr-3 h-5 w-5" />
+                      {item.name}
+                    </button>
+                  )
+                })}
+              </>
+            )}
+          </nav>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-700">
+          <div className="text-center">
+            <div className="text-xs text-gray-400">
+              v2.1.0 • AI Business Platform
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              © 2024 All rights reserved
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

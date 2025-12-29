@@ -2,10 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  images: {
-    domains: ['api.dicebear.com'],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:8080/api/:path*',
+      },
+    ];
   },
-  // Remova experimental.serverActions pois agora é padrão
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

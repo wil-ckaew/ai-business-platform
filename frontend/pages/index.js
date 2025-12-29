@@ -1,268 +1,276 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import DashboardLayout from '../components/layout/DashboardLayout'
-import StatsGrid from '../components/charts/StatsGrid'
-import SalesChart from '../components/charts/SalesChart'
-import RecentSalesTable from '../components/charts/RecentSalesTable'
-import PredictionCard from '../components/charts/PredictionCard'
-import { Activity, TrendingUp, Users, DollarSign, Download, Filter, RefreshCw } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import PageWrapper from '../components/layout/PageWrapper'
+import { api } from '../lib/api'
+import { 
+  TrendingUp, Users, DollarSign, Package,
+  Activity, ShoppingCart, CreditCard, Star,
+  AlertCircle
+} from 'lucide-react'
 
-export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalRevenue: 0,
-    totalSales: 0,
-    activeUsers: 0,
-    growthRate: 0,
-  })
-
+export default function HomePage() {
+  const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     loadDashboardData()
   }, [])
 
-  const loadDashboardData = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setStats({
-        totalRevenue: 45231.89,
-        totalSales: 2345,
-        activeUsers: 578,
-        growthRate: 12.5,
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true)
+      const data = await api.getDashboard()
+      setDashboardData(data)
+    } catch (err) {
+      console.error('Erro ao carregar dashboard:', err)
+      setError('Erro ao carregar dados do dashboard')
+      
+      // Dados de fallback
+      setDashboardData({
+        stats: {
+          totalRevenue: 125430.50,
+          totalSales: 2345,
+          activeCustomers: 1567,
+          conversionRate: 3.2,
+          monthlyGrowth: 12.5,
+          inventoryValue: 78900.75,
+          pendingOrders: 45,
+          customerSatisfaction: 4.5
+        },
+        recentSales: [
+          { id: 1, customer: 'João Silva', amount: 1250.00, date: '2024-01-15', status: 'completed' },
+          { id: 2, customer: 'Maria Santos', amount: 890.50, date: '2024-01-15', status: 'pending' },
+          { id: 3, customer: 'Pedro Costa', amount: 2345.75, date: '2024-01-14', status: 'completed' },
+          { id: 4, customer: 'Ana Oliveira', amount: 567.25, date: '2024-01-14', status: 'completed' },
+          { id: 5, customer: 'Carlos Mendes', amount: 1234.00, date: '2024-01-13', status: 'shipped' },
+        ],
+        topProducts: [
+          { id: 1, name: 'Produto A', sales: 245, revenue: 24500.00 },
+          { id: 2, name: 'Produto B', sales: 189, revenue: 18900.00 },
+          { id: 3, name: 'Produto C', sales: 156, revenue: 15600.00 },
+          { id: 4, name: 'Produto D', sales: 134, revenue: 13400.00 },
+          { id: 5, name: 'Produto E', sales: 98, revenue: 9800.00 },
+        ]
       })
+    } finally {
       setLoading(false)
-      setRefreshing(false)
-    }, 800)
+    }
   }
 
-  const handleRefresh = () => {
-    setRefreshing(true)
-    toast.loading('Refreshing dashboard data...')
-    setTimeout(() => {
-      loadDashboardData()
-      toast.success('Dashboard data refreshed!')
-    }, 1000)
-  }
-
-  const handleExportDashboard = () => {
-    toast.loading('Preparing dashboard export...')
-    
-    const exportData = [
-      ['Dashboard Metrics Export', '', ''],
-      ['Generated', new Date().toLocaleString(), ''],
-      ['', '', ''],
-      ['Metric', 'Value', 'Change'],
-      ['Total Revenue', `$${stats.totalRevenue.toLocaleString()}`, '+12.5%'],
-      ['Total Sales', stats.totalSales.toLocaleString(), '+8.2%'],
-      ['Active Users', stats.activeUsers.toLocaleString(), '+5.7%'],
-      ['Growth Rate', `${stats.growthRate}%`, '+2.4%'],
-      ['', '', ''],
-      ['AI Predictions', 'Next Quarter', '+15.2%'],
-      ['Customer Satisfaction', 'Current', '94.2%'],
-      ['Monthly Growth', 'Target', '10.0%']
-    ]
-    
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + exportData.map(row => row.join(",")).join("\n")
-    
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement("a")
-    link.setAttribute("href", encodedUri)
-    link.setAttribute("download", `dashboard_export_${new Date().toISOString().split('T')[0]}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    
-    toast.success('Dashboard exported successfully!')
-  }
-
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-            <p className="mt-4 text-gray-600">Loading dashboard data...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    )
-  }
+  const stats = dashboardData?.stats || {}
 
   return (
     <DashboardLayout>
       <Head>
-        <title>Dashboard | AI Business Platform</title>
+        <title>Dashboard - AI Business Platform</title>
       </Head>
 
-      <div className="space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-            <p className="text-gray-600 mt-1">Welcome back! Here's your business overview for today</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <button 
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
-            <button 
-              onClick={handleExportDashboard}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 transition-colors"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export Dashboard
-            </button>
-          </div>
+      <PageWrapper>
+        {/* Cabeçalho */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Visão geral do seu negócio em tempo real
+          </p>
         </div>
 
-        {/* Stats Grid */}
-        <StatsGrid stats={stats} />
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        {error && (
+          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-3 flex-shrink-0" />
               <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Sales Trend</h2>
-                <p className="text-gray-600 text-sm">Monthly revenue vs sales</p>
+                <p className="text-yellow-700 dark:text-yellow-300">{error}</p>
+                <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-1">
+                  Mostrando dados de demonstração
+                </p>
               </div>
-              <select className="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white">
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>Last quarter</option>
-              </select>
-            </div>
-            <div className="h-64 sm:h-72">
-              <SalesChart />
             </div>
           </div>
+        )}
 
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        {/* Estatísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">AI Predictions</h2>
-                <p className="text-gray-600 text-sm">Revenue forecasts with 85% accuracy</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Receita Total</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                  ${stats.totalRevenue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                </p>
               </div>
-              <span className="px-3 py-1 bg-success-100 text-success-800 text-sm font-medium rounded-full">
-                85% Accuracy
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <DollarSign className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div className="flex items-center mt-4">
+              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <span className="text-sm text-green-600 dark:text-green-400">
+                +{stats.monthlyGrowth || 0}% este mês
               </span>
             </div>
-            <PredictionCard />
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total de Vendas</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                  {stats.totalSales?.toLocaleString() || '0'}
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <ShoppingCart className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Clientes Ativos</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                  {stats.activeCustomers?.toLocaleString() || '0'}
+                </p>
+              </div>
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Taxa de Conversão</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                  {stats.conversionRate || 0}%
+                </p>
+              </div>
+              <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                <Activity className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Recent Sales */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recent Sales</h2>
-                <p className="text-gray-600 text-sm">Latest transactions and orders</p>
-              </div>
-              <button className="text-primary-600 hover:text-primary-800 text-sm font-medium">
-                View all sales →
+        {/* Conteúdo principal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Vendas Recentes */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow dark:shadow-gray-700/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Vendas Recentes</h2>
+              <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                Ver todas
               </button>
             </div>
-          </div>
-          <div className="overflow-x-auto">
-            <RecentSalesTable />
-          </div>
-        </div>
-
-        {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-6 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-primary-100 text-sm">Active Products</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2">42</p>
-                <p className="text-primary-100 text-sm mt-2">+5 this month</p>
-              </div>
-              <Activity className="h-10 w-10 sm:h-12 sm:w-12 opacity-80" />
+            <div className="space-y-4">
+              {dashboardData?.recentSales?.map((sale) => (
+                <div key={sale.id} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{sale.customer}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{sale.date}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      ${sale.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      sale.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                      sale.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                      'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                    }`}>
+                      {sale.status === 'completed' ? 'Concluído' : 
+                       sale.status === 'pending' ? 'Pendente' : 'Enviado'}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-success-500 to-success-600 text-white p-6 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-success-100 text-sm">Customer Satisfaction</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2">94.2%</p>
-                <p className="text-success-100 text-sm mt-2">+2.4% from last month</p>
-              </div>
-              <Users className="h-10 w-10 sm:h-12 sm:w-12 opacity-80" />
+          {/* Produtos Mais Vendidos */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow dark:shadow-gray-700/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Produtos Mais Vendidos</h2>
+              <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                Ver todos
+              </button>
             </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-warning-500 to-warning-600 text-white p-6 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-warning-100 text-sm">Monthly Growth</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2">+{stats.growthRate}%</p>
-                <p className="text-warning-100 text-sm mt-2">Exceeding target by 7%</p>
-              </div>
-              <TrendingUp className="h-10 w-10 sm:h-12 sm:w-12 opacity-80" />
+            <div className="space-y-4">
+              {dashboardData?.topProducts?.map((product, index) => (
+                <div key={product.id} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg mr-4">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        {index + 1}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {product.sales} vendas
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      ${product.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Receita</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button 
-              onClick={() => toast.success('Invoice creation started')}
-              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center mb-3">
-                <DollarSign className="h-5 w-5 text-primary-600" />
+        {/* Mais estatísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center">
+              <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg mr-4">
+                <Package className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <p className="font-medium text-gray-900">Create Invoice</p>
-              <p className="text-sm text-gray-500 mt-1">Generate new invoice</p>
-            </button>
-            
-            <button 
-              onClick={() => toast.success('Customer form opened')}
-              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="h-10 w-10 bg-success-100 rounded-lg flex items-center justify-center mb-3">
-                <Users className="h-5 w-5 text-success-600" />
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Valor do Estoque</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                  ${stats.inventoryValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                </p>
               </div>
-              <p className="font-medium text-gray-900">Add Customer</p>
-              <p className="text-sm text-gray-500 mt-1">Register new client</p>
-            </button>
-            
-            <button 
-              onClick={() => toast.success('Report generation started')}
-              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="h-10 w-10 bg-warning-100 rounded-lg flex items-center justify-center mb-3">
-                <Activity className="h-5 w-5 text-warning-600" />
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center">
+              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg mr-4">
+                <CreditCard className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
-              <p className="font-medium text-gray-900">Run Report</p>
-              <p className="text-sm text-gray-500 mt-1">Generate analytics</p>
-            </button>
-            
-            <button 
-              onClick={() => toast.success('AI analysis initiated')}
-              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="h-10 w-10 bg-secondary-100 rounded-lg flex items-center justify-center mb-3">
-                <TrendingUp className="h-5 w-5 text-secondary-600" />
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Pedidos Pendentes</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                  {stats.pendingOrders || 0}
+                </p>
               </div>
-              <p className="font-medium text-gray-900">AI Analysis</p>
-              <p className="text-sm text-gray-500 mt-1">Get predictions</p>
-            </button>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow dark:shadow-gray-700/20">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg mr-4">
+                <Star className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Satisfação do Cliente</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                  {stats.customerSatisfaction || 0}/5
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </PageWrapper>
     </DashboardLayout>
   )
 }

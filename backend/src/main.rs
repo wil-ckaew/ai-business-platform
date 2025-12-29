@@ -1,71 +1,45 @@
-mod config;
 mod handlers;
 mod models;
 mod database;
+mod config;
 
-use actix_web::{web, App, HttpServer, HttpResponse};
-use actix_cors::Cors;
-use actix_web::middleware::Logger;
-use std::env;
+use actix_web::{web, App, HttpServer};
+use handlers::auth::AppState as AuthState;
+use handlers::users::UserState;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Inicializar logger
-    env::set_var("RUST_LOG", "actix_web=info");
-    env_logger::init();
-
-    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
-    let host = env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
+    println!("🚀 Starting AI Business Platform API on http://0.0.0.0:8080");
     
-    println!("🚀 Starting AI Business Platform API on http://{}:{}", host, port);
-    println!("🎯 AI Endpoints:");
-    println!("   • POST /api/v1/ai/predict/sales     - Previsão de vendas com IA");
-    println!("   • POST /api/v1/ai/optimize/inventory - Otimização de estoque com IA");
-    println!("   • POST /api/v1/ai/detect/fraud      - Detecção de fraudes com IA");
-    println!("   • GET  /api/v1/ai/insights          - Insights gerais da IA");
-    println!("📡 API Endpoints:");
-    println!("   • GET  /api/v1/health");
-    println!("   • POST /api/v1/auth/login");
-    println!("   • GET  /api/v1/config");
-    println!("   • GET  /api/v1/dashboard");
-    println!("   • GET  /api/v1/sales");
-    println!("   • GET  /api/v1/customers");
+    let auth_state = web::Data::new(AuthState::new());
+    let user_state = web::Data::new(UserState::new());
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
-            .wrap(Logger::default())
-            .wrap(Cors::default()
-                .allow_any_origin()
-                .allow_any_method()
-                .allow_any_header()
-                .max_age(3600))
-            // Health check
-            .route("/api/v1/health", web::get().to(handlers::health::health_check))
-            // Config
-            .route("/api/v1/config", web::get().to(handlers::config::get_config))
-            // Auth
+            .app_data(auth_state.clone())
+            .app_data(user_state.clone())
+            // Rotas de autenticação
             .route("/api/v1/auth/login", web::post().to(handlers::auth::login))
             .route("/api/v1/auth/register", web::post().to(handlers::auth::register))
-            // Dashboard
-            .route("/api/v1/dashboard", web::get().to(handlers::dashboard::get_dashboard))
-            // Sales
-            .route("/api/v1/sales", web::get().to(handlers::sales::get_sales))
-            .route("/api/v1/sales", web::post().to(handlers::sales::create_sale))
-            // Customers
-            .route("/api/v1/customers", web::get().to(handlers::customers::get_customers))
-            // AI Endpoints
+            // Rotas de usuários
+            .route("/api/v1/users", web::get().to(handlers::users::get_users))
+            .route("/api/v1/users/{id}", web::get().to(handlers::users::get_user))
+            .route("/api/v1/users", web::post().to(handlers::users::create_user))
+            .route("/api/v1/users/{id}", web::put().to(handlers::users::update_user))
+            .route("/api/v1/users/{id}", web::delete().to(handlers::users::delete_user))
+            // Rotas de IA
             .route("/api/v1/ai/predict/sales", web::post().to(handlers::ai::predict_sales))
             .route("/api/v1/ai/optimize/inventory", web::post().to(handlers::ai::optimize_inventory))
             .route("/api/v1/ai/detect/fraud", web::post().to(handlers::ai::detect_fraud))
             .route("/api/v1/ai/insights", web::get().to(handlers::ai::get_insights))
-            // Root
-            .route("/", web::get().to(|| async { 
-                HttpResponse::Ok().body("AI Business Platform API v1.0.0 - Powered by Rust & Machine Learning") 
-            }))
-            // 404 handler
-            .default_service(web::route().to(handlers::not_found))
+            // Rotas da API
+            .route("/api/v1/health", web::get().to(handlers::api::health))
+            .route("/api/v1/config", web::get().to(handlers::api::get_config))
+            .route("/api/v1/dashboard", web::get().to(handlers::api::get_dashboard))
+            .route("/api/v1/sales", web::get().to(handlers::api::get_sales))
+            .route("/api/v1/customers", web::get().to(handlers::api::get_customers))
     })
-    .bind(format!("{}:{}", host, port))?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
 }

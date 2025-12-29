@@ -1,21 +1,21 @@
-FROM node:18-alpine AS base
+FROM node:18-alpine
 
-# Instalar dependências necessárias
+# Instalar dependências do sistema necessárias
 RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
-# Instalar dependências
+# Copiar package.json primeiro para melhor cache
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps
+
+# Instalar dependências
+RUN npm ci --legacy-peer-deps --no-audit
 
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação
-RUN npm run build
-
 # Expor porta
 EXPOSE 3000
 
-# Iniciar aplicação
-CMD ["npm", "start"]
+# Comando para desenvolvimento
+CMD ["npm", "run", "dev"]

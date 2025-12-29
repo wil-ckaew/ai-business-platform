@@ -1,69 +1,579 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /* Tipografia responsiva melhorada */
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    height: 100%;
+    text-rendering: optimizeLegibility;
   }
-  
-  body {
-    @apply bg-gray-50 text-gray-900;
-    height: 100%;
-    overflow: hidden;
+
+  /* Melhores alvos de toque para mobile */
+  button,
+  a {
+    @apply touch-manipulation;
   }
-  
-  #__next {
-    height: 100%;
+
+  /* Elementos de formulário melhorados para mobile */
+  input,
+  textarea,
+  select {
+    @apply text-base; /* Previne zoom no iOS ao focar */
+  }
+
+  /* Escala de tipografia responsiva */
+  h1 {
+    @apply text-2xl font-bold sm:text-3xl lg:text-4xl;
+  }
+
+  h2 {
+    @apply text-xl font-bold sm:text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    @apply text-lg font-semibold sm:text-xl lg:text-2xl;
+  }
+
+  p {
+    @apply text-sm sm:text-base;
+  }
+
+  /* Dark mode styles */
+  .dark {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
   }
 }
 
 @layer components {
+  /* Variantes de botão responsivas */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-md {
+    @apply px-4 py-2.5 text-sm sm:px-5 sm:py-3 sm:text-base;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3.5 text-base sm:px-8 sm:py-4 sm:text-lg;
+  }
+
   .btn-primary {
-    @apply px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply btn btn-md bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 active:bg-primary-800;
   }
-  
+
   .btn-secondary {
-    @apply px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    @apply btn btn-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-500 active:bg-gray-100;
   }
-  
+
+  /* Card responsivo */
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm transition-all hover:shadow-md;
+  }
+
+  .card-sm {
+    @apply card p-4 sm:p-5;
+  }
+
+  .card-md {
+    @apply card p-5 sm:p-6;
+  }
+
+  .card-lg {
+    @apply card p-6 sm:p-8;
+  }
+
+  /* Container responsivo */
+  .container-responsive {
+    @apply w-full px-4 mx-auto sm:px-6 lg:px-8;
+    max-width: 100%;
+  }
+
+  .container-narrow {
+    @apply container-responsive max-w-4xl;
+  }
+
+  .container-wide {
+    @apply container-responsive max-w-7xl;
+  }
+
+  /* Grid responsivo */
+  .grid-responsive {
+    @apply grid gap-4 sm:gap-6;
+  }
+
+  .grid-cols-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+
+  /* Utilitários de espaçamento responsivos */
+  .section-padding {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+
+  .section-padding-sm {
+    @apply py-6 sm:py-8 lg:py-10;
+  }
+
+  .section-padding-lg {
+    @apply py-10 sm:py-16 lg:py-20;
+  }
+
+  /* Navegação responsiva */
+  .nav-link {
+    @apply text-sm sm:text-base font-medium text-gray-700 hover:text-gray-900 transition-colors;
+  }
+
+  .nav-link-mobile {
+    @apply text-base font-medium text-gray-900 hover:text-primary-600 transition-colors py-2 px-4;
+  }
+
+  /* Controles de formulário responsivos */
+  .form-control {
+    @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20;
+  }
+
+  .form-control-sm {
+    @apply form-control px-2.5 py-1.5 text-xs sm:text-sm;
+  }
+
+  .form-control-lg {
+    @apply form-control px-4 py-3 text-base;
+  }
+
+  /* Tabela responsiva */
+  .table-responsive {
+    @apply w-full overflow-x-auto rounded-lg border border-gray-200;
+  }
+
+  .table-responsive table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+
+  /* Modal/overlay responsivo */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4;
+  }
+
+  .modal-content {
+    @apply w-full max-w-md rounded-xl bg-white p-6 shadow-xl sm:p-8;
+  }
+
+  .modal-content-lg {
+    @apply modal-content max-w-2xl;
+  }
+
+  /* Sidebar responsivo */
+  .sidebar {
+    @apply fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-xl transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0;
+  }
+
+  .sidebar-mobile-hidden {
+    @apply -translate-x-full;
+  }
+
+  /* Avatar responsivo */
+  .avatar {
+    @apply h-8 w-8 rounded-full sm:h-10 sm:w-10;
+  }
+
+  .avatar-lg {
+    @apply h-12 w-12 rounded-full sm:h-16 sm:w-16;
+  }
+
+  /* Badge responsivo */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-sm {
+    @apply badge px-2 py-0.5 text-xs;
+  }
+
+  .badge-lg {
+    @apply badge px-3 py-1 text-sm;
+  }
+
+  /* Spinner de carregamento responsivo */
+  .spinner {
+    @apply h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent;
+  }
+
+  .spinner-md {
+    @apply spinner h-6 w-6;
+  }
+
+  .spinner-lg {
+    @apply spinner h-8 w-8;
+  }
+
+  /* Alerta responsivo */
+  .alert {
+    @apply rounded-lg p-4 text-sm;
+  }
+
+  .alert-success {
+    @apply alert bg-green-50 text-green-800;
+  }
+
+  .alert-error {
+    @apply alert bg-red-50 text-red-800;
+  }
+
+  .alert-warning {
+    @apply alert bg-yellow-50 text-yellow-800;
+  }
+
+  .alert-info {
+    @apply alert bg-blue-50 text-blue-800;
+  }
+
+  /* Divisor responsivo */
+  .divider {
+    @apply my-4 border-t border-gray-200 sm:my-6;
+  }
+
+  .divider-vertical {
+    @apply mx-4 h-auto w-px border-l border-gray-200 sm:mx-6;
+  }
+
+  /* Tooltip responsivo */
+  .tooltip {
+    @apply absolute z-50 max-w-xs rounded-lg bg-gray-900 px-3 py-2 text-xs text-white shadow-lg;
+  }
+
+  /* Barra de progresso responsiva */
+  .progress-bar {
+    @apply h-2 w-full overflow-hidden rounded-full bg-gray-200;
+  }
+
+  .progress-bar-fill {
+    @apply h-full rounded-full bg-primary-600 transition-all duration-300;
+  }
+
+  /* Skeleton loading responsivo */
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-gray-200;
+  }
+
+  .skeleton-text {
+    @apply skeleton h-4 w-full;
+  }
+
+  .skeleton-circle {
+    @apply skeleton h-12 w-12 rounded-full;
+  }
+}
+
+@layer utilities {
+  /* Utilitários responsivos personalizados */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-300 hover:bg-gray-400;
+  }
+
+  /* Manipulação de imagem responsiva */
+  .img-responsive {
+    @apply max-w-full h-auto object-cover;
+  }
+
+  .img-cover {
+    @apply w-full h-full object-cover;
+  }
+
+  /* Utilitários de área segura para dispositivos móveis modernos */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Utilitários de proporção */
+  .aspect-video-responsive {
+    @apply aspect-video sm:aspect-[16/9] lg:aspect-[21/9];
+  }
+
+  /* Visibilidade responsiva */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+
+  .tablet-only {
+    @apply hidden md:block lg:hidden;
+  }
+
+  /* Detecção de dispositivo touch */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-device-only {
+      @apply opacity-100;
+    }
+  }
+
+  /* Estilos de impressão */
+  @media print {
+    .print-hidden {
+      @apply hidden;
+    }
+
+    .print-block {
+      @apply block;
+    }
+
+    body {
+      @apply bg-white text-black;
+    }
+
+    .card {
+      @apply border-none shadow-none;
+    }
+  }
+}
+
+/* Keyframes de animação */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Classes de animação */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.animate-slide-in-down {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Preferências de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Suporte a modo escuro (se necessário no futuro) */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-auto {
+    @apply bg-gray-900 text-gray-100;
   }
   
-  .input-field {
-    @apply block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors;
+  .dark-mode-auto .card {
+    @apply bg-gray-800 border-gray-700;
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-gray-100;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
-}
-
-/* Ensure main content is scrollable */
-main {
-  height: calc(100vh - 64px); /* Subtract header height */
-  overflow-y: auto;
-}
-
-/* Fix for mobile */
-@media (max-width: 1023px) {
-  main {
-    height: 100vh;
+/* Suporte a modo de alto contraste */
+@media (prefers-contrast: high) {
+  .high-contrast {
+    border-width: 2px;
   }
+}
+
+/* Classes específicas para a página Sales */
+@layer components {
+  /* Cores específicas para status */
+  .bg-success-50 { @apply bg-green-50; }
+  .bg-success-100 { @apply bg-green-100; }
+  .text-success-500 { @apply text-green-500; }
+  .text-success-600 { @apply text-green-600; }
+  .text-success-800 { @apply text-green-800; }
+  
+  .bg-warning-50 { @apply bg-yellow-50; }
+  .bg-warning-100 { @apply bg-yellow-100; }
+  .text-warning-500 { @apply text-yellow-500; }
+  .text-warning-600 { @apply text-yellow-600; }
+  .text-warning-800 { @apply text-yellow-800; }
+  
+  .bg-danger-50 { @apply bg-red-50; }
+  .bg-danger-100 { @apply bg-red-100; }
+  .text-danger-500 { @apply text-red-500; }
+  .text-danger-600 { @apply text-red-600; }
+  .text-danger-800 { @apply text-red-800; }
+  
+  .bg-primary-50 { @apply bg-blue-50; }
+  .bg-primary-100 { @apply bg-blue-100; }
+  .text-primary-500 { @apply text-blue-500; }
+  .text-primary-600 { @apply text-blue-600; }
+  .text-primary-800 { @apply text-blue-800; }
+  
+  .bg-secondary-50 { @apply bg-purple-50; }
+  .text-secondary-500 { @apply text-purple-500; }
+  .text-secondary-600 { @apply text-purple-600; }
+  
+  /* Classes para a página Sales */
+  .sales-table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+  
+  .sales-table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+  
+  .sales-table td {
+    @apply px-6 py-4 whitespace-nowrap;
+  }
+  
+  /* Modal styles para Sales */
+  .sales-modal {
+    @apply fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50;
+  }
+  
+  .sales-modal-content {
+    @apply bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl;
+  }
+}
+
+/* Animações adicionais */
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Toast notifications customization */
+.toast-success {
+  @apply bg-green-50 text-green-800 border border-green-200 !important;
+}
+
+.toast-error {
+  @apply bg-red-50 text-red-800 border border-red-200 !important;
+}
+
+.toast-warning {
+  @apply bg-yellow-50 text-yellow-800 border border-yellow-200 !important;
+}
+
+.toast-info {
+  @apply bg-blue-50 text-blue-800 border border-blue-200 !important;
 }

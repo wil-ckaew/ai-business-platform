@@ -1,81 +1,49 @@
-import { Bell, Search, Menu, User } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { Bars3Icon } from '@heroicons/react/24/outline'
 
 export default function Header({ onMenuClick }) {
-  const [user] = useState({
-    name: 'Alex Johnson',
-    email: 'alex@business.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex'
-  })
+  const [search, setSearch] = useState('')
   
-  const [isScrolled, setIsScrolled] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-    
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   return (
-    <header className={`
-      sticky top-0 z-40 bg-white border-b border-gray-200
-      ${isScrolled ? 'shadow-sm' : ''}
-    `}>
+    <header className="bg-white shadow">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left side - Menu button */}
           <div className="flex items-center">
             <button
               type="button"
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              className="md:hidden mr-4 p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
               onClick={onMenuClick}
             >
-              <Menu className="h-6 w-6" />
+              <span className="sr-only">Open sidebar</span>
+              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </button>
-            
-            {/* Search (desktop) */}
-            <div className="hidden lg:block ml-4">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="search"
-                  className="block w-96 pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                  placeholder="Search analytics, reports, predictions..."
-                />
-              </div>
+            <div className="flex-shrink-0">
+              <h1 className="text-xl font-bold text-gray-900">AI Business Platform</h1>
             </div>
           </div>
-
-          {/* Right side */}
+          
           <div className="flex items-center space-x-4">
-            {/* Search button for mobile */}
-            <button className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-              <Search className="h-5 w-5" />
-            </button>
-
-            {/* Notifications */}
-            <button className="relative p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-              <Bell className="h-6 w-6" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-danger-500 rounded-full"></span>
-            </button>
-
-            {/* User menu */}
             <div className="relative">
-              <button className="flex items-center space-x-3 focus:outline-none group">
-                <div className="text-right hidden md:block">
-                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
-                </div>
-                <div className="h-9 w-9 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold">
-                  {user.name.charAt(0)}
-                </div>
-              </button>
+              <input
+                type="text"
+                placeholder="Search..."
+                className="pl-10 pr-4 py-2 border rounded-lg text-sm w-32 sm:w-48 md:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
             </div>
+            
+            <button className="p-2 text-gray-400 hover:text-gray-500">
+              <span className="sr-only">View notifications</span>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
